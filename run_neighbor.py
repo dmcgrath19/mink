@@ -30,7 +30,8 @@ parser.add_argument(
         'WikiMIA_length32', 'WikiMIA_length64', 'WikiMIA_length128', 
         'WikiMIA_length32_paraphrased',
         'WikiMIA_length64_paraphrased',
-        'WikiMIA_length128_paraphrased', 
+        'WikiMIA_length128_paraphrased',
+        'BooksMIA' 
     ]
 )
 parser.add_argument('--half', action='store_true')
@@ -57,7 +58,7 @@ def load_model(name):
         )        
     else:
         model = AutoModelForCausalLM.from_pretrained(
-            name, return_dict=True, device_map='auto', **int8_kwargs, **half_kwargs
+            name, return_dict=True, device_map='auto', **int8_kwargs, **half_kwargs, trust_remote_code=True
         )
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(name)
@@ -66,7 +67,7 @@ def load_model(name):
 model, tokenizer = load_model(args.model)
 
 # load dataset
-if not 'paraphrased' in args.dataset:
+if not 'paraphrased' in args.dataset and not 'BooksMIA' in args.dataset:
     dataset = load_dataset('swj0419/WikiMIA', split=args.dataset)
 else:
     dataset = load_dataset('zjysteven/WikiMIA_paraphrased_perturbed', split=args.dataset)

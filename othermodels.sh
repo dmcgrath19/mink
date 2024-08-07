@@ -36,29 +36,29 @@ cd /exports/eddie/scratch/s2558433/mink/
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length64_paraphrased
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length128_paraphrased
 
-python run_ref.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length32_paraphrased
-python run_ref.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length64_paraphrased
-python run_ref.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length128_paraphrased
+python run_ref.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length32_paraphrased
+python run_ref.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length64_paraphrased
+python run_ref.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length128_paraphrased
 
-python run_ref.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length32
-python run_ref.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length64
-python run_ref.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length128
+python run_ref.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length32
+python run_ref.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length64
+python run_ref.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length128
 
-python run_neighbor.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length32_paraphrased
-python run_neighbor.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length64_paraphrased
-python run_neighbor.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length128_paraphrased
+python run_neighbor.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length32_paraphrased
+python run_neighbor.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length64_paraphrased
+python run_neighbor.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length128_paraphrased
 
-python run_neighbor.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length32
-python run_neighbor.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length64
-python run_neighbor.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length128
+python run_neighbor.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length32
+python run_neighbor.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length64
+python run_neighbor.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length128
 
-python run.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length32_paraphrased
-python run.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length64_paraphrased
-python run.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length128_paraphrased
+python run.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length32_paraphrased
+python run.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length64_paraphrased
+python run.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length128_paraphrased
 
-python run.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length32
-python run.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length64
-python run.py --model ArthurZ/mamba-2.8b-slimpj --dataset WikiMIA_length128
+python run.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length32
+python run.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length64
+python run.py --model cerebras/btlm-3b-8k-base --dataset WikiMIA_length128
 
 # python run.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length32_paraphrased
 # python run_ref.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length32_paraphrased
