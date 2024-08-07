@@ -149,7 +149,7 @@ if not os.path.exists(save_root):
     os.makedirs(save_root)
 
 model_id = args.model.split('/')[-1]
-if os.path.isfile(os.path.join(save_root, f"{model_id}.csv")):
-    df.to_csv(os.path.join(save_root, f"{model_id}.csv"), index=False, mode='a', header=False)
+if os.path.isfile(os.path.join(save_root, f"{model_id}-concat.csv")):
+    df.to_csv(os.path.join(save_root, f"{model_id}-concat.csv"), index=False, mode='a', header=False)
 else:
-    df.to_csv(os.path.join(save_root, f"{model_id}.csv"), index=False)
+    df.to_csv(os.path.join(save_root, f"{model_id}-concat.csv"), index=False)
