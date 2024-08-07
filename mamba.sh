@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#$ -N mink-my
+#$ -N mink-m-m
 
 #$ -o /exports/eddie/scratch/s2558433/job_runs/mink-$JOB_ID.log
 #$ -e /exports/eddie/scratch/s2558433/job_runs/mink-$JOB_ID.err
@@ -36,8 +36,8 @@ cd /exports/eddie/scratch/s2558433/mink/
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length64_paraphrased
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length128_paraphrased
 
-python run.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length32
-python run_ref.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length32
+python run.py --model state-spaces/mamba-790m-hf --dataset WikiMIA_length32
+python run_ref.py --model state-spaces/mamba-790m-hf --dataset WikiMIA_length32
 
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length64
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length128
