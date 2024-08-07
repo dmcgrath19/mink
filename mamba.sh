@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#$ -N mink-m-m
+#$ -N mink-m-l
 
 #$ -o /exports/eddie/scratch/s2558433/job_runs/mink-$JOB_ID.log
 #$ -e /exports/eddie/scratch/s2558433/job_runs/mink-$JOB_ID.err
