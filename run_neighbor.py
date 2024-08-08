@@ -166,7 +166,7 @@ for method, data in roc_data.items():
         'fpr': data['fpr'],
         'tpr': data['tpr']
     })
-    df_roc.to_csv(os.path.join(save_root, f"{method}_roc_data.csv"), index=False)
+    df_roc.to_csv(os.path.join(save_root, f"{args.model.split('/')[-1]}-{args.dataset}_roc_data.csv"), index=False)
 
 # Save combined ROC data to CSV
 model_id = args.model.split('/')[-1]
