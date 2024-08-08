@@ -14,26 +14,32 @@ from datasets import load_dataset
 
 
 # helper functions
+# def convert_huggingface_data_to_list_dic(dataset):
+#     all_data = []
+#     for i in range(len(dataset)):
+#         ex = dataset[i]
+#         all_data.append(ex)
+#     return all_data
 def convert_huggingface_data_to_list_dic(dataset):
     all_data = []
     for i in range(len(dataset)):
-        ex = dataset[i]
+        ex = dataset.iloc[i].to_dict()  # Convert row to dictionary
         all_data.append(ex)
     return all_data
+
 
 # arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='EleutherAI/pythia-2.8b')
-parser.add_argument(
-    '--dataset', type=str, default='WikiMIA_length32', 
-    choices=[
-        'WikiMIA_length32', 'WikiMIA_length64', 'WikiMIA_length128', 
-        'WikiMIA_length32_paraphrased',
-        'WikiMIA_length64_paraphrased',
-        'WikiMIA_length128_paraphrased',
-        'BooksMIA' 
-    ]
-)
+# parser.add_argument(
+#     '--dataset', type=str, default='WikiMIA_length32', 
+#     choices=[
+#         'WikiMIA_length32', 'WikiMIA_length64', 'WikiMIA_length128', 
+#         'WikiMIA_length32_paraphrased',
+#         'WikiMIA_length64_paraphrased',
+#         'WikiMIA_length128_paraphrased', 
+#     ]
+# )
 parser.add_argument('--half', action='store_true')
 parser.add_argument('--int8', action='store_true')
 args = parser.parse_args()
@@ -58,7 +64,7 @@ def load_model(name):
         )        
     else:
         model = AutoModelForCausalLM.from_pretrained(
-            name, return_dict=True, device_map='auto', **int8_kwargs, **half_kwargs, trust_remote_code=True
+            name, return_dict=True, device_map='auto', **int8_kwargs, **half_kwargs
         )
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(name)
@@ -67,17 +73,23 @@ def load_model(name):
 model, tokenizer = load_model(args.model)
 
 # load dataset
-if not 'paraphrased' in args.dataset and not 'BooksMIA' in args.dataset:
-    dataset = load_dataset('swj0419/WikiMIA', split=args.dataset)
-else:
-    dataset = load_dataset('zjysteven/WikiMIA_paraphrased_perturbed', split=args.dataset)
+
+dataset = pd.read_csv('spanish_prompt(150).csv')
+    # load_dataset('swj0419/WikiMIA', split=args.dataset)
+# else: dataset = pd.read_csv('spanish_prompt(50).csv')
+    
+    # dataset = load_dataset('zjysteven/WikiMIA_paraphrased_perturbed', split=args.dataset)
 data = convert_huggingface_data_to_list_dic(dataset)
 
-perturbed_dataset = load_dataset(
-    'zjysteven/WikiMIA_paraphrased_perturbed', 
-    split=args.dataset + '_perturbed'
-)
+perturbed_dataset = pd.read_csv('spanish_perturbed(150).csv') 
+
+
+# load_dataset(
+#     'zjysteven/WikiMIA_paraphrased_perturbed', 
+#     split=args.dataset + '_perturbed'
+# )
 perturbed_data = convert_huggingface_data_to_list_dic(perturbed_dataset)
+# print(perturbed_data[0])
 num_neighbors = len(perturbed_data) // len(data)
 
 # inference - get scores for each input
@@ -127,12 +139,27 @@ for method, scores in scores.items():
 df = pd.DataFrame(results)
 print(df)
 
-save_root = f"results/{args.dataset}"
+save_root = f"results/pythia_spanish"
 if not os.path.exists(save_root):
     os.makedirs(save_root)
 
+
+roc_data = {
+    'fpr': results['fpr95'],  # Assuming you want to save fpr95 in ROC data
+    'tpr': results['tpr05'],  # Assuming you want to save tpr05 in ROC data
+}
+
+model_id = args.model.split('/')[-1]
+
+# Save ROC data to CSV
+roc_data_df = pd.DataFrame(roc_data)
+roc_data_df.to_csv(os.path.join(save_root, f"{model_id}_roc_data.csv"), index=False)
+
+
 model_id = args.model.split('/')[-1]
 if os.path.isfile(os.path.join(save_root, f"{model_id}.csv")):
-    df.to_csv(os.path.join(save_root, f"{model_id}-ne.csv"), index=False, mode='a', header=False)
+    df.to_csv(os.path.join(save_root, f"{model_id}.csv"), index=False, mode='a', header=False)
 else:
-    df.to_csv(os.path.join(save_root, f"{model_id}-ne.csv"), index=False)
+    df.to_csv(os.path.join(save_root, f"{model_id}.csv"), index=False)
+
+
