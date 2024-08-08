@@ -120,6 +120,8 @@ for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')):
 
 # compute metrics
 # tpr and fpr thresholds are hard-coded
+fpr_list = None
+tpr_list = None
 def get_metrics(scores, labels):
     fpr_list, tpr_list, thresholds = roc_curve(labels, scores)
     auroc = auc(fpr_list, tpr_list)
@@ -146,8 +148,8 @@ if not os.path.exists(save_root):
 
 
 roc_data = {
-    'fpr': results['fpr95'],  # Assuming you want to save fpr95 in ROC data
-    'tpr': results['tpr05'],  # Assuming you want to save tpr05 in ROC data
+    'fpr': fpr_list,  # Assuming you want to save fpr95 in ROC data
+    'tpr': tpr_list,  # Assuming you want to save tpr05 in ROC data
 }
 
 model_id = args.model.split('/')[-1]
