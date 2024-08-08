@@ -40,6 +40,7 @@ parser.add_argument('--model', type=str, default='EleutherAI/pythia-2.8b')
 #         'WikiMIA_length128_paraphrased', 
 #     ]
 # )
+parser.add_argument('--dataset', type=str, default='WikiMIA_length32')
 parser.add_argument('--half', action='store_true')
 parser.add_argument('--int8', action='store_true')
 args = parser.parse_args()
@@ -74,7 +75,7 @@ model, tokenizer = load_model(args.model)
 
 # load dataset
 
-dataset = pd.read_csv('spanish_prompt(150).csv')
+dataset = pd.read_csv(args.dataset)
     # load_dataset('swj0419/WikiMIA', split=args.dataset)
 # else: dataset = pd.read_csv('spanish_prompt(50).csv')
     
