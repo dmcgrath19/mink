@@ -140,7 +140,7 @@ for method, scores in scores.items():
 df = pd.DataFrame(results)
 print(df)
 
-save_root = f"results/{args.dataset}-{args.model.split('/')[-1]}"
+save_root = f"results/{args.model.split('.')[0]}-{args.model.split('/')[-1]}"
 if not os.path.exists(save_root):
     os.makedirs(save_root)
 
@@ -159,14 +159,15 @@ for method, scores in scores.items():
         'fpr': fpr,
         'tpr': tpr
     }
-
+df_roc = None
 # Save ROC data to CSV for each method
 for method, data in roc_data.items():
     df_roc = pd.DataFrame({
         'fpr': data['fpr'],
         'tpr': data['tpr']
     })
-    df_roc.to_csv(os.path.join(save_root, f"{args.model.split('/')[-1]}-{args.dataset}_roc_data.csv"), index=False)
+
+df_roc.to_csv(os.path.join(save_root, f"{args.model.split('/')[-1]}-{args.dataset}_roc_data.csv"), index=False)
 
 # Save combined ROC data to CSV
 model_id = args.model.split('/')[-1]
