@@ -120,8 +120,6 @@ for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')):
 
 # compute metrics
 # tpr and fpr thresholds are hard-coded
-fpr_list = None
-tpr_list = None
 def get_metrics(scores, labels):
     fpr_list, tpr_list, thresholds = roc_curve(labels, scores)
     auroc = auc(fpr_list, tpr_list)
@@ -142,21 +140,36 @@ for method, scores in scores.items():
 df = pd.DataFrame(results)
 print(df)
 
-save_root = f"results/pythia_spanish"
+save_root = f"results/{args.dataset}-{args.model.split('/')[-1]}"
 if not os.path.exists(save_root):
     os.makedirs(save_root)
 
 
-roc_data = {
-    'fpr': fpr_list,  # Assuming you want to save fpr95 in ROC data
-    'tpr': tpr_list,  # Assuming you want to save tpr05 in ROC data
-}
 
+metrics_file = os.path.join(save_root, "metrics.csv")
+df.to_csv(metrics_file, index=False)
+
+# Save ROC Data for plotting
+
+# Save ROC Data for plotting
+roc_data = {}
+for method, scores in scores.items():
+    _, _, _, fpr, tpr = get_metrics(scores, labels)
+    roc_data[method] = {
+        'fpr': fpr,
+        'tpr': tpr
+    }
+
+# Save ROC data to CSV for each method
+for method, data in roc_data.items():
+    df_roc = pd.DataFrame({
+        'fpr': data['fpr'],
+        'tpr': data['tpr']
+    })
+    df_roc.to_csv(os.path.join(save_root, f"{method}_roc_data.csv"), index=False)
+
+# Save combined ROC data to CSV
 model_id = args.model.split('/')[-1]
-
-# Save ROC data to CSV
-roc_data_df = pd.DataFrame(roc_data)
-roc_data_df.to_csv(os.path.join(save_root, f"{model_id}_roc_data.csv"), index=False)
 
 
 model_id = args.model.split('/')[-1]
