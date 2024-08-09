@@ -74,6 +74,8 @@ def load_model(name):
 
 model, tokenizer = load_model(args.model)
 
+title = args.model.split('/')[-1] + '-' + args.dataset.split('/')[-1].split('.')[0]
+
 # load dataset
 
 dataset = pd.read_csv(args.dataset)
@@ -130,7 +132,7 @@ def get_metrics(scores, labels):
     'FPR': fpr_list,
     'TPR': tpr_list})
     # Save the DataFrame to a CSV file
-    df.to_csv(f"{args.dataset.split('/')[-1].split('.')[0]}-{args.model.split('/')[-1]}{model_id}fpr_tpr.csv", index=False)
+    df.to_csv(title + "_fpr_tpr.csv", index=False)
     
     return auroc, fpr95, tpr05
 
