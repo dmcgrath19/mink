@@ -147,7 +147,7 @@ for method, scores in scores.items():
 df = pd.DataFrame(results)
 print(df)
 
-save_root = f"results/{args.dataset}-{args.model.split('/')[-1]}"
+save_root = f"results/{args.dataset.split('/')[-1].split('.')[0]}-{args.model.split('/')[-1]}"
 if not os.path.exists(save_root):
     os.makedirs(save_root)
 
