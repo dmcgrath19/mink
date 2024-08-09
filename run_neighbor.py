@@ -40,8 +40,8 @@ parser.add_argument('--model', type=str, default='EleutherAI/pythia-2.8b')
 #         'WikiMIA_length128_paraphrased', 
 #     ]
 # )
-parser.add_argument('--dataset', type=str, default='WikiMIA_length32')
-parser.add_argument('--perturbed_dataset', type=str, default='spanish_perturbed(150).csv')
+parser.add_argument('--perturbed_dataset', type=str, default='WikiMIA_length32_perturbed')
+parser.add_argument('--dataset', type=str, default='finnish_prompt(150).csv')
 parser.add_argument('--half', action='store_true')
 parser.add_argument('--int8', action='store_true')
 args = parser.parse_args()
@@ -83,7 +83,7 @@ dataset = pd.read_csv(args.dataset)
     # dataset = load_dataset('zjysteven/WikiMIA_paraphrased_perturbed', split=args.dataset)
 data = convert_huggingface_data_to_list_dic(dataset)
 
-perturbed_dataset = pd.read_csv(args.perturbed_dataset)
+perturbed_dataset = pd.read_csv(args.perturbed_dataset) 
 
 
 # load_dataset(
@@ -95,46 +95,29 @@ perturbed_data = convert_huggingface_data_to_list_dic(perturbed_dataset)
 num_neighbors = len(perturbed_data) // len(data)
 
 # inference - get scores for each input
-def inference(text, model, tokenizer):
-    try:
-        # Tokenize the input text
-        input_ids = tokenizer.encode(text, add_special_tokens=True)
-        input_ids = torch.tensor(input_ids).unsqueeze(0)
-        input_ids = input_ids.to(model.device)
-        
-        # Perform inference
-        with torch.no_grad():
-            outputs = model(input_ids, labels=input_ids)
-        loss, logits = outputs[:2]
-        ll = -loss.item()  # log-likelihood
-        return ll
-    
-    except Exception as e:
-        print(f"Skipping entry due to error: {e}")
-        return None  # Indicate an error occurred
+def inference(text, model):
+    input_ids = torch.tensor(tokenizer.encode(text)).unsqueeze(0)
+    input_ids = input_ids.to(model.device)
+    with torch.no_grad():
+        outputs = model(input_ids, labels=input_ids)
+    loss, logits = outputs[:2]
+    ll = -loss.item() # log-likelihood
+    return ll
 
 scores = defaultdict(list)
 for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')): 
-    flagAdd = True
     text = d['input']
     ll = inference(text, model)
 
     ll_neighbors = []
     for j in range(num_neighbors):
         text = perturbed_data[i * num_neighbors + j]['input']
-        inf_val = inference(text, model)
-        if inf_val is not None:
-            ll_neighbors.append(inf_val)
-            flagAdd = False
-            break
+        ll_neighbors.append(inference(text, model))
 
     # assuming the score is larger for training data
     # and smaller for non-training data
     # this is why sometimes there is a negative sign in front of the score
-    if flagAdd:
-        scores['neighbor'].append(ll - np.mean(ll_neighbors))
-    else:
-        flagAdd = True
+    scores['neighbor'].append(ll - np.mean(ll_neighbors))
 
 # compute metrics
 # tpr and fpr thresholds are hard-coded
@@ -143,6 +126,12 @@ def get_metrics(scores, labels):
     auroc = auc(fpr_list, tpr_list)
     fpr95 = fpr_list[np.where(tpr_list >= 0.95)[0][0]]
     tpr05 = tpr_list[np.where(fpr_list <= 0.05)[0][-1]]
+    df = pd.DataFrame({
+    'FPR': fpr_list,
+    'TPR': tpr_list})
+    # Save the DataFrame to a CSV file
+    df.to_csv('fpr_tpr_data_swa.csv', index=False)
+    
     return auroc, fpr95, tpr05
 
 labels = [d['label'] for d in data] # 1: training, 0: non-training
@@ -158,20 +147,25 @@ for method, scores in scores.items():
 df = pd.DataFrame(results)
 print(df)
 
-save_root = f"results/{args.model.split('/')[-1].split('.')[0]}"
+save_root = f"results/{args.dataset}-{args.model.split('/')[-1]}"
 if not os.path.exists(save_root):
     os.makedirs(save_root)
 
+
+
+metrics_file = os.path.join(save_root, "metrics.csv")
+df.to_csv(metrics_file, index=False)
+
+# Save ROC Data for plotting
+
+# Save ROC Data for plotting
 roc_data = {}
-for scores, labels in scores.items():
-    try:
-        _, _, _, fpr, tpr = get_metrics(scores, labels)
-        roc_data[method] = {
-            'fpr': fpr,
-            'tpr': tpr
-        }
-    except Exception as e:
-        print(f"Error computing ROC data for method {scores}: {e}")
+for method, scores in scores.items():
+    _, _, _, fpr, tpr = get_metrics(scores, labels)
+    roc_data[method] = {
+        'fpr': fpr,
+        'tpr': tpr
+    }
 
 # Save ROC data to CSV for each method
 for method, data in roc_data.items():
@@ -179,31 +173,14 @@ for method, data in roc_data.items():
         'fpr': data['fpr'],
         'tpr': data['tpr']
     })
-    roc_file = os.path.join(save_root, f"{method}_roc_data.csv")
-    df_roc.to_csv(roc_file, index=False)
+    
 
 # Save combined ROC data to CSV
-dataset_name = args.dataset.split('/')[-1].split('.')[0] if args.dataset and '/' in args.dataset else 'dataset'
-model_id = args.model.split('/')[-1].split('.')[0]
-combined_roc_file = os.path.join(save_root, f"{model_id}-{dataset_name}_roc_data.csv")
+model_id = args.model.split('/')[-1]
 
-# Create a combined ROC DataFrame
-combined_roc_data = pd.DataFrame()
-for method, data in roc_data.items():
-    df_roc = pd.DataFrame({
-        'method': method,
-        'fpr': data['fpr'],
-        'tpr': data['tpr']
-    })
-    combined_roc_data = pd.concat([combined_roc_data, df_roc], ignore_index=True)
 
-# Save combined ROC data to file
-if not combined_roc_data.empty:
-    combined_roc_data.to_csv(combined_roc_file, index=False)
-
-# Append metrics to existing file or create new one
-metrics_file = os.path.join(save_root, f"{model_id}.csv")
-if os.path.isfile(metrics_file):
-    df.to_csv(metrics_file, index=False, mode='a', header=False)
+model_id = args.model.split('/')[-1]
+if os.path.isfile(os.path.join(save_root, f"{model_id}.csv")):
+    df.to_csv(os.path.join(save_root, f"{model_id}.csv"), index=False, mode='a', header=False)
 else:
-    df.to_csv(metrics_file, index=False)
+    df.to_csv(os.path.join(save_root, f"{model_id}.csv"), index=False)
