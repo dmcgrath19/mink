@@ -130,7 +130,7 @@ def get_metrics(scores, labels):
     'FPR': fpr_list,
     'TPR': tpr_list})
     # Save the DataFrame to a CSV file
-    df.to_csv('fpr_tpr_data_swa.csv', index=False)
+    df.to_csv(f"results/{args.dataset.split('/')[-1].split('.')[0]}-{args.model.split('/')[-1]}{model_id}fpr_tpr.csv", index=False)
     
     return auroc, fpr95, tpr05
 
