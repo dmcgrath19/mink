@@ -41,6 +41,7 @@ parser.add_argument('--model', type=str, default='EleutherAI/pythia-2.8b')
 #     ]
 # )
 parser.add_argument('--dataset', type=str, default='WikiMIA_length32')
+parser.add_argument('--perturbed_dataset', type=str, default='spanish_perturbed(150).csv')
 parser.add_argument('--half', action='store_true')
 parser.add_argument('--int8', action='store_true')
 args = parser.parse_args()
@@ -82,7 +83,7 @@ dataset = pd.read_csv(args.dataset)
     # dataset = load_dataset('zjysteven/WikiMIA_paraphrased_perturbed', split=args.dataset)
 data = convert_huggingface_data_to_list_dic(dataset)
 
-perturbed_dataset = pd.read_csv('spanish_perturbed(150).csv') 
+perturbed_dataset = pd.read_csv(args.perturbed_dataset)
 
 
 # load_dataset(
@@ -167,6 +168,8 @@ for method, data in roc_data.items():
         'tpr': data['tpr']
     })
 
+if args.dataset.contains('/'):
+    args.dataset = args.dataset.split('/')[1]
 df_roc.to_csv(os.path.join(save_root, f"{args.model.split('/')[-1]}-{args.dataset.split('.')[0]}_roc_data.csv"), index=False)
 
 # Save combined ROC data to CSV
