@@ -135,8 +135,7 @@ for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')):
         else:
             indices_to_remove.append(i)
             
-            
-data = data.drop(indices_to_remove).reset_index(drop=True)
+data = [entry for idx, entry in enumerate(data) if idx not in indices_to_remove]
 
 # compute metrics
 # tpr and fpr thresholds are hard-coded
