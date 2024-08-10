@@ -117,7 +117,7 @@ def get_metrics(scores, labels):
     'FPR': fpr_list,
     'TPR': tpr_list})
     # Save the DataFrame to a CSV file
-    df.to_csv('textname', index=False)
+    df.to_csv(textname, index=False)
     return auroc, fpr95, tpr05
 
 labels = [d['label'] for d in data] # 1: training, 0: non-training
