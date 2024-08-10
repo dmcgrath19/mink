@@ -110,12 +110,8 @@ def inference(text, model):
         print(f"Error processing text '{text}': {e}")
         return None  # Return None if there's an error
 
-indices_to_remove = []
-
 scores = defaultdict(list)
 for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')):
-
-    skip = False
     text = d['input']
     ll = inference(text, model)
     if ll is not None:
@@ -125,17 +121,10 @@ for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')):
             perturbed_ll = inference(perturbed_text, model)
             if perturbed_ll is not None:
                 ll_neighbors.append(perturbed_ll)
-            else:
-                ll_neighbors = None
-                break
         
         if ll_neighbors:
             # assuming the score is larger for training data and smaller for non-training data
             scores['neighbor'].append(ll - np.mean(ll_neighbors))
-        else:
-            indices_to_remove.append(i)
-            
-data = [entry for idx, entry in enumerate(data) if idx not in indices_to_remove]
 
 # compute metrics
 # tpr and fpr thresholds are hard-coded
