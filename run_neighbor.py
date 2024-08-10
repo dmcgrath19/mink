@@ -133,7 +133,7 @@ for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')):
             # assuming the score is larger for training data and smaller for non-training data
             scores['neighbor'].append(ll - np.mean(ll_neighbors))
         else:
-            indices_to_remove.append(d.Index)
+            indices_to_remove.append(i)
             
             
 data = data.drop(indices_to_remove).reset_index(drop=True)
