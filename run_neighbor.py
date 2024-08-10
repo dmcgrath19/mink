@@ -37,6 +37,8 @@ parser.add_argument('--half', action='store_true')
 parser.add_argument('--int8', action='store_true')
 args = parser.parse_args()
 
+textname = args.model.split('/')[-1] + '_' + args.dataset + '.csv'
+
 # load model
 def load_model(name):
     int8_kwargs = {}
@@ -111,6 +113,11 @@ def get_metrics(scores, labels):
     auroc = auc(fpr_list, tpr_list)
     fpr95 = fpr_list[np.where(tpr_list >= 0.95)[0][0]]
     tpr05 = tpr_list[np.where(fpr_list <= 0.05)[0][-1]]
+    df = pd.DataFrame({
+    'FPR': fpr_list,
+    'TPR': tpr_list})
+    # Save the DataFrame to a CSV file
+    df.to_csv('textname', index=False)
     return auroc, fpr95, tpr05
 
 labels = [d['label'] for d in data] # 1: training, 0: non-training
