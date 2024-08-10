@@ -14,34 +14,25 @@ from datasets import load_dataset
 
 
 # helper functions
-# def convert_huggingface_data_to_list_dic(dataset):
-#     all_data = []
-#     for i in range(len(dataset)):
-#         ex = dataset[i]
-#         all_data.append(ex)
-#     return all_data
 def convert_huggingface_data_to_list_dic(dataset):
     all_data = []
     for i in range(len(dataset)):
-        ex = dataset.iloc[i].to_dict()  # Convert row to dictionary
+        ex = dataset[i]
         all_data.append(ex)
     return all_data
-
 
 # arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='EleutherAI/pythia-2.8b')
-# parser.add_argument(
-#     '--dataset', type=str, default='WikiMIA_length32', 
-#     choices=[
-#         'WikiMIA_length32', 'WikiMIA_length64', 'WikiMIA_length128', 
-#         'WikiMIA_length32_paraphrased',
-#         'WikiMIA_length64_paraphrased',
-#         'WikiMIA_length128_paraphrased', 
-#     ]
-# )
-parser.add_argument('--perturbed_dataset', type=str, default='WikiMIA_length32_perturbed')
-parser.add_argument('--dataset', type=str, default='finnish_prompt(150).csv')
+parser.add_argument(
+    '--dataset', type=str, default='WikiMIA_length32', 
+    choices=[
+        'WikiMIA_length32', 'WikiMIA_length64', 'WikiMIA_length128', 
+        'WikiMIA_length32_paraphrased',
+        'WikiMIA_length64_paraphrased',
+        'WikiMIA_length128_paraphrased', 
+    ]
+)
 parser.add_argument('--half', action='store_true')
 parser.add_argument('--int8', action='store_true')
 args = parser.parse_args()
@@ -74,26 +65,18 @@ def load_model(name):
 
 model, tokenizer = load_model(args.model)
 
-title = args.model.split('/')[-1] + '-' + args.dataset.split('/')[-1].split('.')[0]
-
 # load dataset
-
-dataset = pd.read_csv(args.dataset)
-    # load_dataset('swj0419/WikiMIA', split=args.dataset)
-# else: dataset = pd.read_csv('spanish_prompt(50).csv')
-    
-    # dataset = load_dataset('zjysteven/WikiMIA_paraphrased_perturbed', split=args.dataset)
+if not 'paraphrased' in args.dataset:
+    dataset = load_dataset('swj0419/WikiMIA', split=args.dataset)
+else:
+    dataset = load_dataset('zjysteven/WikiMIA_paraphrased_perturbed', split=args.dataset)
 data = convert_huggingface_data_to_list_dic(dataset)
 
-perturbed_dataset = pd.read_csv(args.perturbed_dataset) 
-
-
-# load_dataset(
-#     'zjysteven/WikiMIA_paraphrased_perturbed', 
-#     split=args.dataset + '_perturbed'
-# )
+perturbed_dataset = load_dataset(
+    'zjysteven/WikiMIA_paraphrased_perturbed', 
+    split=args.dataset + '_perturbed'
+)
 perturbed_data = convert_huggingface_data_to_list_dic(perturbed_dataset)
-# print(perturbed_data[0])
 num_neighbors = len(perturbed_data) // len(data)
 
 # inference - get scores for each input
@@ -121,8 +104,6 @@ for i, d in enumerate(tqdm(data, total=len(data), desc='Samples')):
     # this is why sometimes there is a negative sign in front of the score
     scores['neighbor'].append(ll - np.mean(ll_neighbors))
 
-model_id = args.model.split('/')[-1]
-
 # compute metrics
 # tpr and fpr thresholds are hard-coded
 def get_metrics(scores, labels):
@@ -130,12 +111,6 @@ def get_metrics(scores, labels):
     auroc = auc(fpr_list, tpr_list)
     fpr95 = fpr_list[np.where(tpr_list >= 0.95)[0][0]]
     tpr05 = tpr_list[np.where(fpr_list <= 0.05)[0][-1]]
-    df = pd.DataFrame({
-    'FPR': fpr_list,
-    'TPR': tpr_list})
-    # Save the DataFrame to a CSV file
-    df.to_csv(title + "_fpr_tpr.csv", index=False)
-    
     return auroc, fpr95, tpr05
 
 labels = [d['label'] for d in data] # 1: training, 0: non-training
@@ -151,35 +126,9 @@ for method, scores in scores.items():
 df = pd.DataFrame(results)
 print(df)
 
-save_root = f"results/{args.dataset.split('/')[-1].split('.')[0]}-{args.model.split('/')[-1]}"
+save_root = f"results/{args.dataset}"
 if not os.path.exists(save_root):
     os.makedirs(save_root)
-
-
-
-metrics_file = os.path.join(save_root, "metrics.csv")
-df.to_csv(metrics_file, index=False)
-
-# Save ROC Data for plotting
-
-# Save ROC Data for plotting
-roc_data = {}
-for method, scores in scores.items():
-    _, _, _, fpr, tpr = get_metrics(scores, labels)
-    roc_data[method] = {
-        'fpr': fpr,
-        'tpr': tpr
-    }
-
-# Save ROC data to CSV for each method
-for method, data in roc_data.items():
-    df_roc = pd.DataFrame({
-        'fpr': data['fpr'],
-        'tpr': data['tpr']
-    })
-    
-
-# Save combined ROC data to CSV
 
 model_id = args.model.split('/')[-1]
 if os.path.isfile(os.path.join(save_root, f"{model_id}.csv")):

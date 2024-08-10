@@ -36,9 +36,14 @@ cd /exports/eddie/scratch/s2558433/mink/
 # python run_neighbor.py --model EleutherAI/pythia-160m --dataset WikiMIA_length64_paraphrased
 # python run_neighbor.py --model EleutherAI/pythia-160m --dataset WikiMIA_length128_paraphrased
 
-# python run_neighbor.py --model EleutherAI/pythia-2.8b --dataset 'csv_data/pile_prompt.csv' --perturbed_dataset 'csv_data/pile_perturbed.csv'
-python run_neighbor.py --model EleutherAI/pythia-2.8b --dataset 'csv_data/dm_prompt.csv' --perturbed_dataset 'csv_data/dm_perturbed.csv'
-python run_neighbor.py --model EleutherAI/pythia-2.8b --dataset 'csv_data/gutenberg_prompt.csv' --perturbed_dataset 'csv_data/gutenberg_perturbed.csv'
+python run_neighbor.py --model EleutherAI/pythia-160m --dataset WikiMIA_length64
+python run_neighbor.py --model EleutherAI/pythia-2.8b --dataset WikiMIA_length64
+python run_neighbor.py --model state-spaces/mamba-2.8b-hf --dataset WikiMIA_length64
+python run_neighbor.py --model state-spaces/mamba-2.8b-hf --dataset WikiMIA_length64
+
+# # python run_neighbor.py --model EleutherAI/pythia-2.8b --dataset 'csv_data/pile_prompt.csv' --perturbed_dataset 'csv_data/pile_perturbed.csv'
+# python run_neighbor.py --model EleutherAI/pythia-2.8b --dataset 'csv_data/dm_prompt.csv' --perturbed_dataset 'csv_data/dm_perturbed.csv'
+# python run_neighbor.py --model EleutherAI/pythia-2.8b --dataset 'csv_data/gutenberg_prompt.csv' --perturbed_dataset 'csv_data/gutenberg_perturbed.csv'
 
 # python run_neighbor.py --model EleutherAI/pythia-160m --dataset 'csv_data/enron_prompt.csv' --perturbed_dataset 'csv_data/enron_perturbed.csv'
 # python run_neighbor.py --model EleutherAI/pythia-160m --dataset 'csv_data/git_prompt.csv' --perturbed_dataset 'csv_data/git_perturbed.csv'
