@@ -37,10 +37,22 @@ cd /exports/eddie/scratch/s2558433/mink/
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset WikiMIA_length128_paraphrased
 
 
-python run_neighbor.py --model state-spaces/mamba-2.8b-hf --dataset 'csv_data/pile_prompt.csv' --perturbed_dataset 'csv_data/pile_perturbed.csv'
-python run_neighbor.py --model state-spaces/mamba-2.8b-hf --dataset 'csv_data/dm_prompt.csv' --perturbed_dataset 'csv_data/dm_perturbed.csv'
-python run_neighbor.py --model state-spaces/mamba-2.8b-hf --dataset 'csv_data/gutenberg_prompt.csv' --perturbed_dataset 'csv_data/gutenberg_perturbed.csv'
+python run_neighbor.py --model EleutherAI/gpt-neo-125m --dataset WikiMIA_length64
+python run_neighbor.py --model EleutherAI/gpt-neo-1.3B --dataset WikiMIA_length64
+python run_neighbor.py --model EleutherAI/gpt-neo-2.7B --dataset WikiMIA_length64
 
+python run_neighbor.py --model RWKV/rwkv-4-169m-pile --dataset WikiMIA_length64
+python run_neighbor.py --model RWKV/rwkv-4-430m-pile --dataset WikiMIA_length64
+python run_neighbor.py --model RWKV/rwkv-4-1b5-pile --dataset WikiMIA_length64
+python run_neighbor.py --model RWKV/rwkv-4-3b-pile --dataset WikiMIA_length64
+
+python run_neighbor.py --model EleutherAI/gpt-neo-125m --dataset WikiMIA_length32
+python run_neighbor.py --model EleutherAI/gpt-neo-1.3B --dataset WikiMIA_length64
+python run_neighbor.py --model EleutherAI/gpt-neo-2.7B --dataset WikiMIA_length128
+
+python run_neighbor.py --model RWKV/rwkv-4-3b-pile --dataset WikiMIA_length32
+python run_neighbor.py --model RWKV/rwkv-4-3b-pile --dataset WikiMIA_length64
+python run_neighbor.py --model RWKV/rwkv-4-3b-pile --dataset WikiMIA_length128
 
 
 # python run_neighbor.py --model state-spaces/mamba-130m-hf --dataset 'csv_data/pile_prompt.csv' --perturbed_dataset 'csv_data/pile_perturbed.csv'
